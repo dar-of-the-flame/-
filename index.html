@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>НАБЛЮДАТЕЛЬ</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/menu.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <style>
+    /* ФИКС ДЛЯ ГЛАВНОГО МЕНЮ НА IOS */
+    @supports (-webkit-touch-callout: none) {
+        .menu-container {
+            height: 100vh;
+            height: -webkit-fill-available;
+        }
+        
+        .endings-grid {
+            max-height: 50vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+    }
+</style>
+    
+    <style>
+        /* Исправления для маленьких экранов */
+        @media (max-width: 320px) {
+            .game-title {
+                font-size: 2rem !important;
+                line-height: 1.2;
+                word-break: break-word;
+                padding: 0 10px;
+                text-align: center;
+            }
+            .title-subtitle {
+                font-size: 0.7rem !important;
+                line-height: 1.3;
+                padding: 0 10px;
+                text-align: center;
+            }
+        }
+        
+        @media (max-width: 280px) {
+            .game-title {
+                font-size: 1.8rem !important;
+            }
+        }
+        
+        /* Разрешаем скролл везде */
+        html, body {
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .menu-container {
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        /* Исправление для нижней панели браузера */
+        @supports (padding: max(0px)) {
+            body {
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-container">
+        <!-- Анимированный фон -->
+        <div class="menu-bg">
+            <div class="bg-gradient"></div>
+            <div class="bg-particles"></div>
+            <div class="bg-shimmer"></div>
+        </div>
+        
+        <!-- Заголовок -->
+        <header class="menu-header">
+            <h1 class="game-title">НАБЛЮДАТЕЛЬ</h1>
+            <div class="title-subtitle">Проект «НАБЛЮДАТЕЛЬ» — Часть первая: Шёпот в белизне</div>
+        </header>
+        
+        <!-- Основное меню -->
+        <main class="menu-main">
+            <nav class="menu-nav">
+                <button class="menu-btn primary" id="btn-new-game">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-text">Начать игру</span>
+                </button>
+                
+                <button class="menu-btn" id="btn-continue">
+                    <span class="btn-icon">⏯</span>
+                    <span class="btn-text">Продолжить</span>
+                    <span class="btn-badge" id="continue-badge"></span>
+                </button>
+                
+                <button class="menu-btn" id="btn-gallery">
+                    <span class="btn-icon">🖼</span>
+                    <span class="btn-text">Галерея</span>
+                    <span class="btn-badge" id="gallery-badge">0/7</span>
+                </button>
+                
+                <button class="menu-btn" id="btn-settings">
+                    <span class="btn-icon">⚙</span>
+                    <span class="btn-text">Настройки</span>
+                </button>
+                
+                <button class="menu-btn" id="btn-about">
+                    <span class="btn-icon">ℹ</span>
+                    <span class="btn-text">Об игре</span>
+                </button>
+            </nav>
+            
+            <!-- Блок с сохранениями (если есть) -->
+            <div class="saves-preview" id="saves-preview">
+                <h3>Последнее сохранение</h3>
+                <div class="save-slot" id="last-save">
+                    <span class="save-date">Нет сохранений</span>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Футер -->
+        <footer class="menu-footer">
+            <div class="footer-quote">"Выбор всегда будет за тобой"</div>
+            <div class="footer-copyright">© Проект «НАБЛЮДАТЕЛЬ» 2024</div>
+        </footer>
+        
+        <!-- Модальные окна -->
+        <div class="modal-overlay" id="modal-overlay"></div>
+        
+        <!-- Окно настроек -->
+        <div class="modal" id="settings-modal">
+            <div class="modal-header">
+                <h2>Настройки</h2>
+                <button class="modal-close" id="close-settings">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label>Скорость текста</label>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="text-speed">
+                </div>
+                <div class="setting-group">
+                    <label>Автопрокрутка</label>
+                    <label class="switch">
+                        <input type="checkbox" id="auto-scroll" checked>
+                        <span class="slider-round"></span>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label>Громкость музыки</label>
+                    <input type="range" min="0" max="100" value="50" class="slider" id="music-volume">
+                </div>
+                <div class="setting-group">
+                    <label>Громкость звуков</label>
+                    <input type="range" min="0" max="100" value="70" class="slider" id="sfx-volume">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Окно галереи -->
+        <div class="modal wide" id="gallery-modal">
+            <div class="modal-header">
+                <h2>Галерея концовок</h2>
+                <button class="modal-close" id="close-gallery">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="endings-grid" id="endings-grid">
+                    <!-- Концовки будут загружаться динамически -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Подключаем JavaScript -->
+    <script src="js/touch-fix.js"></script>
+    <script src="js/mobile-scroll-fix.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/browser-bar-fix.js"></script>
+</body>
+</html>

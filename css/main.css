@@ -1,0 +1,401 @@
+/* Reset и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --primary-dark: #0a0a1a;
+    --primary-purple: #6b46c1;
+    --accent-purple: #9f7aea;
+    --light-purple: #d6bcfa;
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --danger: #fc8181;
+    --success: #68d391;
+    --warning: #f6ad55;
+    
+    --gradient-1: linear-gradient(135deg, #0a0a1a 0%, #1a202c 50%, #2d3748 100%);
+    --gradient-2: linear-gradient(45deg, #4c1d95 0%, #6b46c1 30%, #9f7aea 70%, #d6bcfa 100%);
+    
+    --shadow-deep: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --shadow-light: 0 5px 15px rgba(159, 122, 234, 0.2);
+    
+    --border-radius: 12px;
+    --border-radius-sm: 8px;
+    
+    --font-title: 'UnifrakturMaguntia', cursive;
+    --font-body: 'Roboto Mono', monospace;
+}
+
+body {
+    font-family: var(--font-body);
+    background: var(--primary-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* Контейнеры */
+.menu-container {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 5% 10%;
+    z-index: 1;
+}
+
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-purple);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--light-purple);
+}
+
+/* Анимации */
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Утилиты */
+.hidden {
+    display: none !important;
+}
+
+.loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .menu-container {
+        padding: 10% 5%;
+        min-height: 100vh;
+        overflow-y: auto; /* Разрешаем скролл */
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-height: 700px) {
+    .menu-footer {
+        display: none;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 480px) {
+    .menu-container {
+        padding: 10% 5%;
+        overflow-y: auto;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .menu-nav {
+        max-width: 100%;
+    }
+    
+    .menu-btn {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+    
+    .saves-preview {
+        max-width: 100%;
+    }
+}
+
+/* Портретная ориентация (книжный формат) */
+@media (orientation: portrait) and (max-height: 800px) {
+    .menu-footer {
+        position: static; /* Убираем fixed */
+        margin-top: auto;
+        padding: 2rem 0;
+    }
+    
+    .menu-main {
+        margin-bottom: 0;
+    }
+}
+
+/* Ландшафтная ориентация */
+@media (orientation: landscape) and (max-height: 500px) {
+    .menu-header {
+        padding-top: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .menu-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .menu-btn {
+        min-width: 200px;
+    }
+}
+
+/* Дополнения к основным стилям */
+
+/* Для портретной ориентации телефона */
+@media (orientation: portrait) {
+    body {
+        overflow-y: auto; /* Разрешаем скролл */
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .menu-container {
+        padding: 5% 5%;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .game-title {
+        font-size: 2.5rem;
+    }
+    
+    .menu-nav {
+        max-width: 100%;
+    }
+    
+    .menu-btn {
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+    }
+    
+    .modal.wide {
+        width: 95%;
+        min-width: 95%;
+        max-height: 85vh;
+    }
+    
+    .endings-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+    
+    .ending-card {
+        min-height: 100px;
+        padding: 0.8rem;
+    }
+    
+    .ending-icon {
+        font-size: 1.5rem;
+    }
+    
+    .ending-title {
+        font-size: 0.8rem;
+    }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 320px) {
+    .game-title {
+        font-size: 2rem;
+    }
+    
+    .title-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .menu-btn {
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn-icon {
+        font-size: 1.1rem;
+    }
+}
+
+/* Предотвращение выделения текста на мобильных */
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Разрешаем выделение текста в текстовом контенте */
+.text-content {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Исправляем название игры на маленьких экранах */
+@media (max-width: 320px) {
+    .game-title {
+        font-size: 2rem;
+        line-height: 1.2;
+        word-break: break-word;
+        padding: 0 10px;
+        text-align: center;
+    }
+    
+    .title-subtitle {
+        font-size: 0.7rem;
+        line-height: 1.3;
+        padding: 0 10px;
+        text-align: center;
+    }
+}
+
+/* Фиксируем скролл на мобильных */
+html, body {
+    overflow-x: hidden;
+    overflow-y: auto; /* Разрешаем скролл */
+}
+
+/* Для iOS Safari */
+@supports (-webkit-touch-callout: none) {
+    body {
+        position: relative;
+        overflow: auto;
+        width: 100%;
+        height: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .menu-container {
+        height: auto;
+        min-height: 100vh;
+        position: relative;
+    }
+}
+
+/* Использование переменной для высоты на мобильных */
+:root {
+    --vh: 1vh;
+}
+
+@media (orientation: portrait) {
+    .menu-container {
+        height: auto;
+        min-height: calc(var(--vh, 1vh) * 100);
+    }
+}
+
+/* Исправление нижней панели браузера на мобильных */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Фикс для Safari на iOS 15+ */
+@supports (-webkit-touch-callout: none) {
+    .menu-container {
+        min-height: -webkit-fill-available;
+    }
+}
+
+/* ФИКС ДЛЯ ГЛАВНОГО МЕНЮ НА МОБИЛЬНЫХ */
+@media (max-width: 768px) {
+    .menu-container {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+        height: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    
+    .modal.wide {
+        max-height: 70vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .endings-grid {
+        display: block;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        max-height: 50vh;
+    }
+}
+
+/* ФИКС ДЛЯ ГЛАВНОГО МЕНЮ */
+@media (max-width: 768px) {
+    html, body {
+        height: 100%;
+        position: fixed;
+        width: 100%;
+        overflow: hidden;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .menu-container {
+        height: var(--app-height);
+        height: 100vh;
+        height: -webkit-fill-available;
+        max-height: var(--app-height);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        padding-top: var(--safe-area-inset-top);
+        padding-bottom: var(--safe-area-inset-bottom);
+    }
+    
+    .modal.wide {
+        max-height: calc(var(--app-height) - 100px);
+        height: auto;
+    }
+    
+    .modal-body {
+        max-height: calc(var(--app-height) - 200px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

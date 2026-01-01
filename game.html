@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0a0a1a">
+    <title>НАБЛЮДАТЕЛЬ - Игра</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+    <style>
+    /* КРИТИЧЕСКИЙ ФИКС ДЛЯ SAFARI */
+    @supports (-webkit-touch-callout: none) {
+        .game-container {
+            height: 100vh;
+            height: -webkit-fill-available;
+            min-height: -webkit-fill-available;
+        }
+        
+        .text-container {
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch;
+            transform: translateZ(0);
+        }
+    }
+    
+    /* Фикс для переполнения */
+    .choices-container {
+        padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    }
+</style>
+   
+   <style>
+    /* ДОПОЛНИТЕЛЬНЫЕ ФИКСЫ ДЛЯ СКРОЛЛА */
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        -webkit-text-size-adjust: 100%;
+    }
+    
+    body {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .game-container {
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    
+    .game-main {
+        flex: 1;
+        overflow-y: visible;
+        position: relative;
+    }
+    
+    /* Убираем все трансформации, которые мешают скроллу */
+    .choices-container.visible {
+        transform: none !important;
+    }
+</style>
+    
+    
+    <style>
+        /* Экстренные исправления для iOS */
+        @supports (-webkit-touch-callout: none) {
+            body, html {
+                height: 100%;
+                overflow: auto;
+                -webkit-overflow-scrolling: touch;
+                position: relative;
+            }
+            .game-container {
+                height: auto;
+                min-height: 100vh;
+                position: relative;
+                overflow-y: auto;
+            }
+        }
+        
+        /* Дополнительные исправления для маленьких экранов */
+        @media (max-width: 400px) {
+            .scene-title {
+                font-size: 1.3rem !important;
+                line-height: 1.3;
+                word-break: break-word;
+                overflow-wrap: break-word;
+                padding: 0 5px;
+            }
+        }
+        
+        @media (max-width: 320px) {
+            .scene-title {
+                font-size: 1.1rem !important;
+            }
+            .text-content {
+                font-size: 0.9rem !important;
+            }
+        }
+        
+        /* Разрешаем скролл везде */
+        html, body {
+            overflow-y: auto !important;
+        }
+        
+        .game-container {
+            overflow-y: auto !important;
+            min-height: 100vh;
+        }
+        
+        .choices-container {
+            overflow-y: visible !important;
+            max-height: none !important;
+        }
+        
+        /* Фиксируем нижнюю панель */
+        .game-footer {
+            margin-top: auto;
+        }
+        
+        /* Исправляем высоту текстового контейнера */
+        .text-container {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .text-container {
+                max-height: 50vh;
+            }
+            
+            .choices-container {
+                margin-bottom: 70px; /* Для мобильных */
+            }
+        }
+        
+        /* Анимация для обратной связи свайпа */
+        @keyframes fadeOutSwipe {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -100%) scale(0.5);
+            }
+        }
+        
+        .swipe-feedback {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: var(--accent-purple);
+            opacity: 0;
+            z-index: 1000;
+            pointer-events: none;
+            animation: fadeOutSwipe 1s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Весь остальной HTML без изменений -->
+    <div class="game-container">
+        <!-- Игровой фон -->
+        <div class="game-bg" id="game-bg">
+            <div class="bg-overlay"></div>
+            <div class="bg-particles"></div>
+        </div>
+        
+        <!-- Верхняя панель (статус) -->
+        <header class="game-header">
+            <div class="status-bar">
+                <!-- Убрали время отсюда -->
+                
+                <div class="resource-display">
+                    <div class="resource">
+                        <span class="resource-icon">⏳</span>
+                        <span class="resource-label">OT:</span>
+                        <div class="resource-bar">
+                            <div class="bar-fill" id="ot-bar" style="width: 100%"></div>
+                        </div>
+                        <span class="resource-value" id="ot-value">100</span>
+                    </div>
+                    
+                    <div class="resource">
+                        <span class="resource-icon">🛡</span>
+                        <span class="resource-label">ЗР:</span>
+                        <div class="resource-bar">
+                            <div class="bar-fill" id="zr-bar" style="width: 100%"></div>
+                        </div>
+                        <span class="resource-value" id="zr-value">100</span>
+                    </div>
+                </div>
+                
+                <button class="menu-toggle" id="menu-toggle">
+                    <span>☰</span>
+                </button>
+            </div>
+            
+            <!-- Скрытая панель параметров -->
+            <div class="parameters-panel" id="parameters-panel">
+                <div class="parameter">
+                    <span class="param-label">СОЗИДАНИЕ:</span>
+                    <div class="param-bar">
+                        <div class="bar-fill" id="soz-bar" style="width: 0%"></div>
+                    </div>
+                    <span class="param-value" id="soz-value">0</span>
+                </div>
+                <div class="parameter">
+                    <span class="param-label">СВЯЗЬ:</span>
+                    <div class="param-bar">
+                        <div class="bar-fill" id="svyaz-bar" style="width: 0%"></div>
+                    </div>
+                    <span class="param-value" id="svyaz-value">0</span>
+                </div>
+                <div class="parameter">
+                    <span class="param-label">РАСПАД:</span>
+                    <div class="param-bar">
+                        <div class="bar-fill" id="raspad-bar" style="width: 0%"></div>
+                    </div>
+                    <span class="param-value" id="raspad-value">0</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Основная область - текст сцены -->
+        <main class="game-main">
+            <div class="scene-container">
+                <!-- Заголовок сцены -->
+                <div class="scene-header" id="scene-header">
+                    <h2 class="scene-title" id="scene-title"></h2>
+                    <div class="scene-meta" id="scene-meta"></div>
+                </div>
+                
+                <!-- Текст сцены -->
+                <div class="text-container">
+                    <div class="text-content" id="text-content">
+                        <!-- Текст будет загружаться динамически -->
+                    </div>
+                </div>
+                
+                <!-- Индикатор продолжения (под текстом) -->
+                <div class="continue-indicator" id="continue-indicator">
+                    <div class="continue-text">↓</div>
+                    <div class="continue-label">Продолжить</div>
+                </div>
+                
+                <!-- Выборы -->
+                <div class="choices-container" id="choices-container">
+                    <!-- Кнопки выбора будут добавляться динамически -->
+                </div>
+            </div>
+            
+            <!-- Дополнительный индикатор свайпа для мобильных -->
+            <div class="mobile-swipe-indicator" id="mobile-swipe-indicator">
+                <div class="swipe-arrow">↑</div>
+                <div class="swipe-text">Свайп вверх для продолжения</div>
+            </div>
+            
+            <!-- Инвентарь (боковая панель) -->
+            <aside class="inventory-panel" id="inventory-panel">
+                <div class="inventory-header">
+                    <h3>Инвентарь</h3>
+                    <button class="inventory-close" id="inventory-close">×</button>
+                </div>
+                <div class="inventory-items" id="inventory-items">
+                    <div class="empty-inventory">Инвентарь пуст</div>
+                </div>
+            </aside>
+        </main>
+        
+        <!-- Нижняя панель управления -->
+        <footer class="game-footer">
+            <div class="control-panel">
+                <button class="control-btn" id="btn-save" title="Сохранить">
+                    <span class="btn-icon">💾</span>
+                    <span class="btn-label">Сохранить</span>
+                </button>
+                
+                <button class="control-btn" id="btn-load" title="Загрузить">
+                    <span class="btn-icon">📂</span>
+                    <span class="btn-label">Загрузить</span>
+                </button>
+                
+                <button class="control-btn" id="btn-auto" title="Автоматическое чтение">
+                    <span class="btn-icon">▶</span>
+                    <span class="btn-label">Авто</span>
+                </button>
+                
+                <button class="control-btn" id="btn-skip" title="Пропустить до выбора">
+                    <span class="btn-icon">⏩</span>
+                    <span class="btn-label">Пропуск</span>
+                </button>
+                
+                <button class="control-btn" id="btn-menu" title="Меню">
+                    <span class="btn-icon">⚙</span>
+                    <span class="btn-label">Меню</span>
+                </button>
+            </div>
+        </footer>
+        
+        <!-- Меню игры -->
+        <div class="game-menu-overlay" id="game-menu-overlay"></div>
+        <div class="game-menu" id="game-menu">
+            <div class="game-menu-header">
+                <h2>Меню игры</h2>
+                <button class="game-menu-close" id="game-menu-close">×</button>
+            </div>
+            <div class="game-menu-body">
+                <div class="menu-section">
+                    <h3>Быстрые действия</h3>
+                    <button class="menu-action" id="menu-save">💾 Сохранить игру</button>
+                    <button class="menu-action" id="menu-load">📂 Загрузить игру</button>
+                    <button class="menu-action" id="menu-settings">⚙ Настройки</button>
+                    <button class="menu-action" id="menu-main">🏠 В главное меню</button>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Состояние игры</h3>
+                    <div class="status-display">
+                        <div class="status-item">
+                            <span>Текущая сцена:</span>
+                            <span id="menu-current-scene">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Время игры:</span>
+                            <span id="menu-play-time">-</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Сделано выборов:</span>
+                            <span id="menu-choices-count">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>Сохранения</h3>
+                    <div class="save-slots" id="game-save-slots">
+                        <!-- Слоты сохранений будут загружаться динамически -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Диалог сохранения/загрузки -->
+        <div class="save-modal" id="save-modal">
+            <div class="save-modal-header">
+                <h2 id="save-modal-title">Сохранить игру</h2>
+                <button class="save-modal-close" id="save-modal-close">×</button>
+            </div>
+            <div class="save-modal-body">
+                <div class="save-slots-grid" id="save-slots-grid">
+                    <!-- Слоты будут заполнены динамически -->
+                </div>
+                <div class="save-modal-actions">
+                    <button class="save-action" id="save-action">Сохранить</button>
+                    <button class="cancel-action" id="cancel-save">Отмена</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Уведомления -->
+        <div class="notification-container" id="notification-container">
+            <!-- Уведомления будут появляться здесь -->
+        </div>
+    </div>
+    
+    <!-- Загрузчик -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Загрузка сцены...</div>
+    </div>
+    
+    <!-- Подключаем JavaScript -->
+    <script src="js/touch-fix.js"></script>
+    <script src="js/mobile-scroll-fix.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/browser-bar-fix.js"></script>
+</body>
+</html>
